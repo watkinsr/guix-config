@@ -1,0 +1,8 @@
+* Notes
+- nmtui for wireless configuration
+* Update the system
+- guix pull; guix package -u; sudo -E guix system reconfigure /etc/config.scm
+* Clean the system
+- guix package --list-genrations; guix system --list-generations
+- guix gc
+
