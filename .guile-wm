@@ -1,0 +1,80 @@
+;; -*- scheme -*-
+
+;; This file is part of Guile-WM.
+
+;;    Guile-WM is free software: you can redistribute it and/or modify
+;;    it under the terms of the GNU General Public License as published by
+;;    the Free Software Foundation, either version 3 of the License, or
+;;    (at your option) any later version.
+
+;;    Guile-WM is distributed in the hope that it will be useful,
+;;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;    GNU General Public License for more details.
+
+;;    You should have received a copy of the GNU General Public License
+;;    along with Guile-WM.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Sample user init file for Guile-WM
+
+;; You can include built-in modules using this shorthand syntax. Each
+;; line that contains a comment and the prefix "wm-modules:" will be
+;; read as a list of modules to load from (guile-wm module ...)
+
+;; wm-modules: cursor root-keymap
+;; wm-modules: minibuffer repl randr fullscreen
+;; wm-modules: menu message window-menu time simple-reparent
+;; wm-modules: simple-focus window-cycle tinywm
+
+;; Command helpers
+(define-command (emacs) (shell-command "emacsclient -c"))
+(define-command (st) (shell-command "st -f 'terminus:size=8'"))
+(define-command (lecture (module #:string) (ao #:string) (screen #:string)) (shell-command (string-append "lecture " module " " ao " " screen)))
+
+;; Multi-monitor setup.
+(set-resolution! "DP-1" 1440 900)
+(set-resolution! "HDMI-2" 1920 1080)
+(set-offset! "HDMI-2" 1440 0)
+
+;; Color of window border when focused/unfocused
+(set! (simple-focus-color) 'light-steel-blue)
+(set! (simple-unfocus-color) 'black)
+
+;; Set the cursor and the keymap cursor
+(set-cursor! 'x-cursor)
+(set! (keymap-cursor) 'draped-box)
+
+;; Start repl server on the default port
+(start-wm-repl)
+
+;; Root keymap
+(bind-key-commands root-keymap prompt-for-additional-arg
+  (semicolon "prompt-for-command")
+  (colon "prompt-for-eval")
+  (bang "prompt-for-shell-command")
+  (C-q "quit")
+  (f "conkeror")
+  (F "fullscreen")
+  (e "emacs")
+  (w "select-window")
+  (l "lecture")
+  (T "show-time")
+  (n "window-cycle")
+  (tab "visible-window-cycle")
+  (c "shell-command xterm -e telnet localhost 37146")
+  (t "shell-command st")
+  (C-b "select-left")
+  (C-f "select-right")
+  (C-n "select-down")
+  (C-p "select-up")
+  (two "vertical-split")
+  (three "horizontal-split")
+  (down "grow-window-vertical")
+  (up "shrink-window-vertical")
+  (left "grow-window-horizontal")
+  (right "shrink-window-horizontal"))
+
+;; Startup programs
+(shell-command "xrandr --auto && xrandr --output eDP-1 --off && xrandr --output DP-1 --auto --output HDMI-2 --auto --left-of DP-1")
+(shell-command (format #f "xterm -e 'tail /tmp/guile-wm.log'"))
+(shell-command (format #f "xterm -e 'emacs --daemon'"))
